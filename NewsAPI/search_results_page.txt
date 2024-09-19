@@ -1,0 +1,51 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controller/news_controller.dart';
+import '../widget/news_card.dart';
+
+class SearchResultsPage extends StatelessWidget {
+  final String searchTerm;
+
+  SearchResultsPage({super.key, required this.searchTerm});
+
+  final NewsController newsController = Get.put(NewsController());
+
+  @override
+  Widget build(BuildContext context) {
+    newsController.fetchNews(searchTerm); // Fetch news on screen load
+
+    return Scaffold(
+      body: Obx(() {
+        if (newsController.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color.fromRGBO(8, 109, 160, 1),
+            ),
+          );
+        } else if (newsController.errorMessage.isNotEmpty) {
+          return Center(
+            child: Text('Error: ${newsController.errorMessage.value}'),
+          );
+        } else if (newsController.articles.isNotEmpty) {
+          return ListView.builder(
+            itemCount: newsController.articles.length,
+            itemBuilder: (context, index) {
+              var article = newsController.articles[index];
+              return NewsCard(
+                source: article.name,
+                title: article.title,
+                url: article.url,
+                imageUrl: article.urlToImage,
+                publishedAt: article.publishedAt,
+              );
+            },
+          );
+        } else {
+          return const Center(
+            child: Text('No results found'),
+          );
+        }
+      }),
+    );
+  }
+}

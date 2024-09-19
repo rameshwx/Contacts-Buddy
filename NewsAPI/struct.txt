@@ -1,0 +1,14 @@
+lib/
+│
+├── controller/
+│   └── news_controller.dart
+│
+├── model/
+│   └── article.dart
+│
+├── view/
+│   ├── search_results_page.dart
+│   └── read_web_view.dart
+│
+└── widget/
+    └── news_card.dart

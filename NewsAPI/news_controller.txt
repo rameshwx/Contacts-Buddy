@@ -1,0 +1,43 @@
+import 'dart:convert';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import '../model/article.dart';
+
+class NewsController extends GetxController {
+  var isLoading = true.obs;
+  var articles = <Article>[].obs;
+  var errorMessage = ''.obs;
+
+  Future<void> fetchNews(String search) async {
+    try {
+      isLoading(true);
+      var response = await http.get(
+        Uri.parse("https://newsapi.org/v2/everything?q=$search&apiKey=3b18a8f57495470aa2ca1ea5205678df"),
+      );
+      var jsonData = jsonDecode(response.body);
+
+      if (jsonData['status'] == 'ok') {
+        var fetchedArticles = <Article>[];
+        for (var element in jsonData['articles']) {
+          if (element['title'] != null && element['urlToImage'] != null) {
+            final article = Article(
+              name: element['source']['name'] ?? 'Unknown Source',
+              title: element['title'] ?? 'No Title',
+              url: element['url'] ?? 'url',
+              urlToImage: element['urlToImage'] ?? 'image',
+              publishedAt: element['publishedAt'] ?? 'Not Available',
+            );
+            fetchedArticles.add(article);
+          }
+        }
+        articles.value = fetchedArticles;
+      } else {
+        errorMessage.value = "Failed to load news";
+      }
+    } catch (e) {
+      errorMessage.value = e.toString();
+    } finally {
+      isLoading(false);
+    }
+  }
+}
